@@ -1,6 +1,6 @@
-# Contributing to replayd
+# Contributing to loopreel
 
-Thanks for your interest in `replayd`. This project is in early development, so the design is still moving. Please read this document before opening a pull request.
+Thanks for your interest in `loopreel`. This project is in early development, so the design is still moving. Please read this document before opening a pull request.
 
 ## Ground rules
 
@@ -10,7 +10,7 @@ Thanks for your interest in `replayd`. This project is in early development, so 
 
 ## No vibe coding
 
-`replayd` is a determinism tool. Its entire value is that replay behaves exactly like the recording, and subtle bugs in the recorder, the scheduler hooks, or the trace format silently break that guarantee. For that reason, **we do not accept vibe-coded contributions.**
+`loopreel` is a determinism tool. Its entire value is that replay behaves exactly like the recording, and subtle bugs in the recorder, the scheduler hooks, or the trace format silently break that guarantee. For that reason, **we do not accept vibe-coded contributions.**
 
 **Vibe coding** means generating code with an AI tool (a chat assistant, an agent, or an autocomplete system) and submitting it without reading it line by line, understanding it, and verifying it yourself. Typical signs:
 
@@ -42,8 +42,8 @@ This policy covers **code contributions**. Documentation fixes, bug reports, and
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-git clone https://github.com/Omega-127/replayd
-cd replayd
+git clone https://github.com/Omega-127/loopreel
+cd loopreel
 uv sync
 uv run pytest
 ```
@@ -52,7 +52,7 @@ uv run pytest
 
 - **Tests are required.** Every bug fix needs a regression test, and every feature needs tests. For anything touching recording or replay, include a test showing that replay reproduces the recorded behavior. Property-based tests with Hypothesis are encouraged.
 - **Tests must be able to fail.** Before submitting, confirm your new test fails without your change.
-- **No new core dependencies.** The core package is stdlib-only. Integrations belong in optional extras (for example `replayd[httpx]`).
+- **No new core dependencies.** The core package is stdlib-only. Integrations belong in optional extras (for example `loopreel[httpx]`).
 - **Trace format changes need discussion first.** The format is versioned, and changes require an issue and a version bump.
 - **Be honest about determinism.** If your change introduces a case where replay might diverge, document it in the "What is and isn't guaranteed" section of the README.
 - **Types and style.** Code must pass `ruff` and `mypy`:
@@ -85,7 +85,7 @@ Write clear, imperative commit messages ("Add divergence check for time events")
 Please include:
 
 - Python version and operating system
-- `replayd` version
+- `loopreel` version
 - A minimal reproduction (ideally a small script and a trace file)
 - Expected vs. actual behavior
 - Which libraries are involved (`httpx`, `asyncpg`, etc.), and whether threads or C extensions are used
