@@ -1,4 +1,4 @@
-# replayd
+# loopreel
 
 **A flight recorder for async Python services.**
 Capture a failing run once. Replay it exactly, on your laptop, as many times as you need.
@@ -21,7 +21,7 @@ Logs tell you *what* happened. They can't re-run it.
 
 ## The idea
 
-`replayd` runs inside your process and records every non-deterministic input your code receives (HTTP responses, DB results, time, randomness, and the order in which tasks resume). Later, it feeds the same inputs back in the same order so the run behaves identically, with no network or database needed.
+`loopreel` runs inside your process and records every non-deterministic input your code receives (HTTP responses, DB results, time, randomness, and the order in which tasks resume). Later, it feeds the same inputs back in the same order so the run behaves identically, with no network or database needed.
 
 If your code is deterministic *given its inputs*, capturing the inputs captures the bug.
 
@@ -29,7 +29,7 @@ If your code is deterministic *given its inputs*, capturing the inputs captures 
 production                                 your laptop
 +-------------------------+                +-------------------------+
 |  async service          |                |  same code              |
-|   `replayd record`      | --- trace ---> |   `replayd replay`      |
+|   `loopreel record`     | --- trace ---> |   `loopreel replay`     |
 |   (flight recorder)     |                |   (no network / DB)     |
 +-------------------------+                +-------------------------+
 ```
@@ -52,8 +52,8 @@ production                                 your laptop
 ## Install
 
 ```bash
-pip install replayd           # core, no dependencies
-pip install "replayd[httpx]"  # with the httpx adapter
+pip install loopreel           # core, no dependencies
+pip install "loopreel[httpx]"  # with the httpx adapter
 ```
 
 Requires Python 3.11+.
@@ -63,7 +63,7 @@ Requires Python 3.11+.
 ### Python API
 
 ```python
-from replayd import record, replay
+from loopreel import record, replay
 
 @record(trace_dir="traces/")
 async def handle_order(order_id: str):
@@ -76,35 +76,35 @@ replay("traces/handle_order-<timestamp>.trace", handle_order)
 ### CLI
 
 ```bash
-replayd record -- python app.py              # run a script under the recorder
-replayd replay traces/run.trace -- python app.py
-replayd show traces/run.trace                # inspect events
+loopreel record -- python app.py              # run a script under the recorder
+loopreel replay traces/run.trace -- python app.py
+loopreel show traces/run.trace                # inspect events
 ```
 
 🚧 Planned commands:
 
 ```bash
-replayd ls                         # list captured traces
-replayd minimize traces/run.trace  # shrink a failing trace
-replayd explore traces/run.trace   # try alternative task orderings
-replayd diff good.trace bad.trace  # compare two runs
-replayd view traces/run.trace      # open the local web viewer
-replayd redact traces/run.trace    # scrub secrets
-replayd doctor                     # warn about unsupported libraries
+loopreel ls                         # list captured traces
+loopreel minimize traces/run.trace  # shrink a failing trace
+loopreel explore traces/run.trace   # try alternative task orderings
+loopreel diff good.trace bad.trace  # compare two runs
+loopreel view traces/run.trace      # open the local web viewer
+loopreel redact traces/run.trace    # scrub secrets
+loopreel doctor                     # warn about unsupported libraries
 ```
 
 `replay` exits with a non-zero status when behavior diverges from the recording, so it works in CI.
 
 ## How it works
 
-1. **Interception.** `replayd` wraps the sources of non-determinism: HTTP clients, DB drivers, and the `time`, `random`, and `uuid` modules.
+1. **Interception.** `loopreel` wraps the sources of non-determinism: HTTP clients, DB drivers, and the `time`, `random`, and `uuid` modules.
 2. **Event log.** Each intercepted call becomes an event (`seq`, `task_id`, `kind`, `args_hash`, `result`) written to a versioned JSON Lines trace.
-3. **Replay.** The same calls are answered from the trace, in recorded order. If your code makes a call that doesn't match the next recorded event, `replayd` stops and shows where the run diverged.
+3. **Replay.** The same calls are answered from the trace, in recorded order. If your code makes a call that doesn't match the next recorded event, `loopreel` stops and shows where the run diverged.
 4. **Scheduling control.** 🚧 During replay, tasks are resumed in the recorded order rather than the natural order, using hooks into the `asyncio` event loop.
 
 ## What is and isn't guaranteed
 
-Determinism has limits, and `replayd` aims to be honest about them.
+Determinism has limits, and `loopreel` aims to be honest about them.
 
 **Supported (target):** single-threaded `asyncio` programs using the supported adapters.
 
@@ -115,17 +115,17 @@ Determinism has limits, and `replayd` aims to be honest about them.
 - Multi-service distributed tracing
 - Event loops other than the standard `asyncio` loop (e.g. `uvloop` compatibility is not guaranteed yet)
 
-If your code calls something `replayd` can't intercept, replay may diverge. `replayd` reports this rather than failing silently.
+If your code calls something `loopreel` can't intercept, replay may diverge. `loopreel` reports this rather than failing silently.
 
 ## How it compares
 
-| Tool | What it does | How `replayd` differs |
+| Tool | What it does | How `loopreel` differs |
 |---|---|---|
-| VCR.py, pytest-recording | Replay HTTP cassettes in tests | `replayd` also captures time, randomness, DB calls, and task ordering |
-| simloop | Deterministic simulation testing for asyncio | `replayd` targets real recorded incidents, not simulated ones |
-| Kinescope, frozentrace, llmreplay | Record/replay for LLM agent runs | `replayd` targets general async services, not only agents |
-| rr | Syscall-level record/replay for native processes | `replayd` works at the Python/asyncio level |
-| Sentry, Datadog | Show what happened | `replayd` lets you re-execute it |
+| VCR.py, pytest-recording | Replay HTTP cassettes in tests | `loopreel` also captures time, randomness, DB calls, and task ordering |
+| simloop | Deterministic simulation testing for asyncio | `loopreel` targets real recorded incidents, not simulated ones |
+| Kinescope, frozentrace, llmreplay | Record/replay for LLM agent runs | `loopreel` targets general async services, not only agents |
+| rr | Syscall-level record/replay for native processes | `loopreel` works at the Python/asyncio level |
+| Sentry, Datadog | Show what happened | `loopreel` lets you re-execute it |
 
 ## Roadmap
 
@@ -144,8 +144,8 @@ If your code calls something `replayd` can't intercept, replay may diverge. `rep
 ## Development
 
 ```bash
-git clone https://github.com/Omega-127/replayd
-cd replayd
+git clone https://github.com/Omega-127/loopreel
+cd loopreel
 uv sync
 uv run pytest
 ```
